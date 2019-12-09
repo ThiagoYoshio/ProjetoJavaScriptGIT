@@ -20,16 +20,19 @@ url.question('Digite a URL completa do repositório GitHub: ', (repo) => {
     .then(res => res.json())
     .then(function (data) {
 
-     var csv = 'title, body, state, number, assign, labels, milestone\n';
-     
-        data.forEach(function(row) {
-                csv += row.title;
-                csv += ';'+ row.body.replace(/(\r\n|\n|\r)/gm,"");
-                csv += ';'+ row.state;
-                csv += ';'+ row.number;
-                csv += ';'+ row.assign;
-                csv += ';'+ row.labels;
-                csv += ';'+ row.milestone;
+     var csv = 'TITLE| BODY| STATE| NUMBER| ASSIGN| LABELS| MILESTONE\n';
+        data.forEach(function(flecha) {
+            var assigneeBody = flecha.assignee;
+            if (assigneeBody != null && "login" in assigneeBody) assigneeBody=assigneeBody.login;
+            var milestoneBody = flecha.milestone;
+            if (milestoneBody != null && "title" in milestoneBody) milestoneBody=milestoneBody.title;
+                csv += flecha.title.replace(/"/g, "'");
+                csv += '|"'+ flecha.body.replace(/(\r\n|\n|\r)/gm,"").replace(/"/g, "'")+'"';
+                csv += '|'+ flecha.state.replace(/"/g, "'");
+                csv += '|'+ flecha.number;
+                csv += '|'+ assigneeBody;
+                csv += '|'+ JSON.stringify(flecha.labels);
+                csv += '|'+ (milestoneBody);
                 csv += '\n';
         });
         fs.writeFile('./IssuesGitHub.csv', csv, (err) => {
